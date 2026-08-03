@@ -1,8 +1,8 @@
 # Báo Cáo Cá Nhân — Lab 7: Embedding & Vector Store
 
-**Họ tên:** [Tên sinh viên]
-**Nhóm:** [Tên nhóm]
-**Ngày:** [Ngày nộp]
+**Họ tên:** Nguyễn Tuấn Vũ
+**Nhóm:** C1
+**Ngày:** 2026-08-03
 
 > **Nộp 1 bản / sinh viên.** Phần nhóm (lựa chọn tài liệu, thiết kế chiến lược, bộ câu hỏi đánh giá, demo) nộp chung 1 bản trong `REPORT_NHOM.md`. Chi tiết thang điểm: `docs/SCORING.md`.
 
@@ -15,29 +15,29 @@
 ### Độ tương tự Cosine (Cosine Similarity) (Bài tập 1.1)
 
 **Độ tương tự cosine cao (High cosine similarity) nghĩa là gì?**
-> *Viết 1-2 câu:*
+> Độ tương tự cosine cao nghĩa là hai vector embedding tạo với nhau một góc nhỏ và có hướng gần giống nhau. Với text embedding có chất lượng, điều này thường cho thấy hai đoạn văn có nội dung hoặc ý nghĩa gần nhau dù không nhất thiết dùng đúng cùng từ ngữ.
 
 **Ví dụ có độ tương tự CAO:**
-- Câu A:
-- Câu B:
-- Tại sao tương đồng:
+- Câu A: Sinh viên có thể điều chỉnh lớp học phần trong thời gian nào?
+- Câu B: Thời hạn đổi lớp đã đăng ký dành cho sinh viên là khi nào?
+- Tại sao tương đồng: Hai câu dùng từ khác nhau nhưng đều hỏi về thời gian điều chỉnh lớp học phần.
 
 **Ví dụ có độ tương tự THẤP:**
-- Câu A:
-- Câu B:
-- Tại sao khác:
+- Câu A: Sinh viên được đăng ký tối đa bao nhiêu tín chỉ?
+- Câu B: Thư viện mở cửa vào những ngày nào?
+- Tại sao khác: Một câu hỏi về giới hạn học tập, câu còn lại hỏi lịch hoạt động của thư viện nên chủ đề và ý định không liên quan trực tiếp.
 
 **Tại sao độ tương tự cosine (cosine similarity) được ưu tiên hơn khoảng cách Euclid (Euclidean distance) cho text embeddings?**
-> *Viết 1-2 câu:*
+> Cosine tập trung vào hướng của vector thay vì độ lớn, nên ít bị ảnh hưởng bởi khác biệt về chuẩn vector hoặc độ dài văn bản. Điều này phù hợp với mục tiêu so sánh mẫu ngữ nghĩa của các embedding hơn là khoảng cách tuyệt đối giữa chúng.
 
 ### Bài toán tính toán Chunking (Bài tập 1.2)
 
 **Tài liệu 10,000 ký tự, chunk_size=500, overlap=50. Bao nhiêu chunks?**
-> *Trình bày phép tính:*
-> *Đáp án:*
+> *Phép tính:* `ceil((10000 - 50) / (500 - 50)) = ceil(9950 / 450) = 23`.
+> *Đáp án:* 23 chunks.
 
 **Nếu độ chồng chéo (overlap) tăng lên 100, số lượng chunk thay đổi thế nào? Tại sao muốn độ chồng chéo nhiều hơn?**
-> *Viết 1-2 câu:*
+> Khi overlap tăng lên 100, bước trượt còn 400 ký tự và số chunk tăng thành `ceil((10000 - 100) / 400) = 25`. Overlap lớn hơn giúp giữ ngữ cảnh nằm gần ranh giới chunk, nhưng làm tăng dữ liệu trùng lặp, số embedding và chi phí tìm kiếm.
 
 ---
 
@@ -48,10 +48,10 @@ Giải thích cách tiếp cận của bạn khi lập trình (implement) các p
 ### Các hàm chia nhỏ (Chunking Functions)
 
 **`SentenceChunker.chunk`** — hướng tiếp cận:
-> *Viết 2-3 câu: dùng biểu thức chính quy (regex) gì để phát hiện câu? Xử lý trường hợp ngoại lệ (edge case) nào?*
+> Tôi dùng regex `(?<=[.!?])\s+` để tách tại khoảng trắng sau dấu kết thúc câu, nhờ lookbehind nên dấu câu vẫn nằm ở câu phía trước. Sau khi tách, từng câu được `strip()`, phần rỗng bị loại và các câu được gom theo `max_sentences_per_chunk`; text rỗng trả về danh sách rỗng.
 
 **`RecursiveChunker.chunk` / `_split`** — hướng tiếp cận:
-> *Viết 2-3 câu: thuật toán hoạt động thế nào? Base case (trường hợp cơ sở) là gì?*
+> Thuật toán ưu tiên ranh giới tự nhiên theo thứ tự đoạn, dòng, câu, từ rồi ký tự; các phần nhỏ liên tiếp được gom cho tới trước khi vượt `chunk_size`. Base case thứ nhất trả ngay khi text đã đủ ngắn; base case thứ hai cắt fixed-size khi hết separator hoặc gặp separator rỗng. Mỗi lần đệ quy đều giảm danh sách separator hoặc xử lý một phần text nhỏ hơn để tránh vòng lặp vô hạn.
 
 ### Lớp EmbeddingStore
 
