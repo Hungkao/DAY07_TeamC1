@@ -1,8 +1,8 @@
 # Báo Cáo Nhóm — Lab 7: Embedding & Vector Store
 
-**Nhóm:** [Tên nhóm]
-**Thành viên:** [Họ tên từng thành viên]
-**Ngày:** [Ngày nộp]
+**Nhóm:** C1
+**Thành viên:** Nguyễn Văn Phong, Nguyễn Hữu Khánh Tùng, Nguyễn Phúc Hưng, Nguyễn Tuấn Vũ
+**Ngày:** 2026-08-03
 
 > **Nộp 1 bản / nhóm.** Phần cá nhân (hướng tiếp cận, kết quả riêng, dự đoán…) mỗi thành viên nộp riêng trong `REPORT_CANHAN.md`. Chi tiết thang điểm: `docs/SCORING.md`.
 
@@ -17,28 +17,43 @@
 **Chủ đề (cố định theo lớp K3):** Dịch vụ / quy định đại học (đăng ký môn, học phí, học bổng, thư viện, ký túc xá…).
 
 **Phạm vi cụ thể nhóm tập trung:**
-> *1 câu — ví dụ: thư viện + đăng ký môn học.*
+> Quy định, kế hoạch và hướng dẫn đăng ký học phần dành cho sinh viên Đại học Bách khoa Hà Nội, gồm đăng ký học phần/lớp, điều chỉnh, giới hạn tín chỉ, lịch mở hệ thống và kênh hỗ trợ.
 
 ### Danh sách tài liệu (Data Inventory)
 
 | # | Tên tài liệu | Nguồn (Source URL) | Ngày lấy / Phiên bản | Số ký tự | Metadata đã gán |
 |---|--------------|------------|--------------------|----------|-----------------|
-| 1 | | | | | |
-| 2 | | | | | |
-| 3 | | | | | |
-| 4 | | | | | |
-| 5 | | | | | |
+| 1 | Kế hoạch mở đăng ký lớp kỳ 2026.1 | [CTT HUST — kế hoạch 29240](https://ctt.hust.edu.vn/DisplayWeb/DisplayKehoach?kehoach=29240) | 2026-08-03 / 2026.1 | 2.135 | `student`, `2026.1`, `registration` |
+| 2 | Quy chế đào tạo — quy định đăng ký học tập | [CTT HUST — Quy chế đào tạo 2025](https://ctt.hust.edu.vn/Upload/Nguy%E1%BB%85n%20Qu%E1%BB%91c%20%C4%90%E1%BA%A1t/files/DTDH_QDQC/Hoctap/QCDT_2025_5445_QD-DHBK.pdf) | 2026-08-03 / 5445/QĐ-ĐHBK | 1.977 | `student`, `all`, `policy` |
+| 3 | Quy chế đào tạo 2025 — tín chỉ, rút học phần và mở lớp | [CTT HUST — Quy chế đào tạo 2025](https://ctt.hust.edu.vn/Upload/Nguy%E1%BB%85n%20Qu%E1%BB%91c%20%C4%90%E1%BA%A1t/files/DTDH_QDQC/Hoctap/QCDT_2025_5445_QD-DHBK.pdf) | 2026-08-03 / 2025-05 | 3.262 | `student`, `all`, `policy` |
+| 4 | Hướng dẫn và biểu mẫu hỗ trợ đăng ký SoICT | [SoICT HUST — biểu mẫu sinh viên](https://soict.hust.edu.vn/bieu-mau-va-quy-dinh-danh-cho-sinh-vien.html) | 2026-08-03 / 2026-01-30 | 2.731 | `student`, `all`, `add-drop` |
+| 5 | Đăng ký kế hoạch học tập kỳ hè 2025.3 và kỳ 2026.1 | [CTT HUST — kế hoạch 27235](https://ctt.hust.edu.vn/DisplayWeb/DisplayKehoach?kehoach=27235) | 2026-08-03 / `not-stated` | 1.850 | `student`, `2025.3-and-2026.1`, `registration` |
+| 6 | Kế hoạch mở đăng ký lớp kỳ 2025.2 | [CTT HUST — kế hoạch 27232](https://ctt.hust.edu.vn/DisplayWeb/DisplayKehoach?kehoach=27232) | 2026-08-03 / 2025-12-25 | 2.244 | `student`, `2025.2`, `registration` |
+
+Tài liệu số 2 và 3 cùng xuất phát từ Quy chế đào tạo 2025 nhưng được làm sạch theo hai phạm vi khác nhau: tài liệu số 2 tập trung quy trình đăng ký, còn tài liệu số 3 tập trung giới hạn tín chỉ, rút học phần, học phí và điều kiện mở lớp. Khi đánh giá retrieval, nhóm không tính hai file này là hai nguồn độc lập.
 
 **Danh sách kiểm tra quản trị dữ liệu (Data governance checklist):**
-- [ ] Tập tài liệu (Corpus) chỉ chứa nguồn công khai/được phép dùng và không chứa dữ liệu cá nhân, thông tin đăng nhập hoặc tài liệu nội bộ.
-- [ ] Mỗi tài liệu có `source_url`, `retrieved_at`, `document_version` (hoặc ngày hiệu lực) trong metadata.
+- [x] Tập tài liệu chỉ chứa trang/PDF công khai thuộc hệ thống HUST; không chứa dữ liệu cá nhân, thông tin đăng nhập hoặc tài liệu nội bộ.
+- [x] Mỗi tài liệu có `source_url`, `retrieved_at`, `document_version` hoặc ngày hiệu lực trong metadata và có một dòng tương ứng trong `sources.csv`.
+- [x] Sáu file trong `data/k3_university/` có `doc_id` duy nhất, trùng tên file; template và tài liệu ngoài phạm vi được lưu riêng dưới `data/examples/` nên không được nạp vào benchmark.
 
 ### Cấu trúc Metadata (Metadata Schema)
 
 | Trường metadata | Kiểu | Ví dụ giá trị | Tại sao hữu ích cho truy xuất (retrieval)? |
 |----------------|------|---------------|-------------------------------|
-| | | | |
-| | | | |
+| `doc_id` | string | `course-registration-03` | Định danh ổn định của tài liệu gốc; hỗ trợ truy vết và xóa mọi chunk của một tài liệu. |
+| `title` | string | `Kế hoạch mở đăng ký lớp kỳ 2026.1` | Hiển thị nguồn dễ hiểu trong kết quả và báo cáo. |
+| `audience` | enum | `student` | Giới hạn corpus cho đối tượng sinh viên theo schema thống nhất của nhóm. |
+| `department` | string | `academic-affairs` | Xác định đơn vị nghiệp vụ phụ trách quy định. |
+| `category` | enum/string | `course-registration` | Thu hẹp retrieval vào chủ đề đăng ký học phần. |
+| `language` | enum | `vi` | Hỗ trợ chọn corpus và embedding phù hợp với tiếng Việt. |
+| `source_url` | URL | `https://ctt.hust.edu.vn/...` | Cho phép kiểm chứng thông tin từ nguồn chính thức. |
+| `retrieved_at` | date | `2026-08-03` | Cho biết thời điểm thu thập để đánh giá độ mới. |
+| `document_version` | string | `2026.1`, `2025-12-25` | Phân biệt phiên bản hoặc thời điểm hiệu lực của tài liệu. |
+| `semester` | string | `2025.2`, `2026.1`, `all` | Tránh trộn lịch đăng ký giữa các học kỳ. |
+| `registration_phase` | enum | `registration`, `add-drop`, `policy` | Lọc theo giai đoạn đăng ký hoặc loại nội dung quy định. |
+
+Do phạm vi nhóm chỉ gồm tài liệu dành cho sinh viên, cả sáu file hiện có `audience: student`. Bộ lọc `audience=student` vẫn đáp ứng contract K3 nhưng không làm thay đổi tập ứng viên; nhóm sẽ đánh giá giá trị metadata bằng A/B filter theo `semester` hoặc `registration_phase`, đồng thời ghi nhận hạn chế này trong phần phân tích retrieval.
 
 ---
 
