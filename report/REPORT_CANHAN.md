@@ -75,17 +75,17 @@ Vượt qua bộ kiểm thử là điều kiện tính điểm phần này.
 ### Kết Quả Kiểm Thử (Test Results)
 
 ```
-python -m unittest tests.test_solution -q
+python -m pytest tests -v
 
-----------------------------------------------------------------------
-Ran 42 tests in 0.002s
+platform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0
+collected 42 items
 
-OK
+tests/test_solution.py .......................................... [100%]
+
+============================= 42 passed in 0.05s ==============================
 ```
 
 **Số lượng bài test vượt qua (pass):** 42 / 42
-
-> Kết quả trên được chạy bằng `unittest` với interpreter hiện có. Trước khi nộp, sẽ chạy lại `python -m pytest tests -v` trong môi trường Python 3.11 và thay khối output bằng kết quả pytest chính thức.
 
 ---
 
