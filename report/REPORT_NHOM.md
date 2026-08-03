@@ -59,50 +59,54 @@ Corpus gồm bốn tài liệu hướng dẫn/kế hoạch có `audience: studen
 
 ## 2. Thiết kế chiến lược (Strategy Design) — Nhóm (15 điểm)
 
-> Mỗi thành viên thử **một chiến lược khác nhau** trên cùng bộ tài liệu; nhóm tổng hợp và so sánh ở đây.
+Nhóm giữ cố định 6 tài liệu, 5 query, `top_k=3`, metadata filter và `MockEmbedder`; biến duy nhất là chunker. Các file cá nhân được giữ trong `report/benchmarks/`. Do một số lượt chạy cá nhân trước đó dùng backend hoặc phiên bản corpus khác nhau, bảng so sánh chính thức được nhóm trưởng chạy lại bằng `scripts/compare_team_strategies.py` để bảo đảm công bằng.
 
 ### Phân tích đường cơ sở (Baseline Analysis)
 
-Chạy `ChunkingStrategyComparator().compare()` trên 2-3 tài liệu:
+Chạy `ChunkingStrategyComparator().compare(chunk_size=400)` trên ba tài liệu đầu, sau khi bỏ front matter:
 
 | Tài liệu | Chiến lược (Strategy) | Số lượng Chunk | Độ dài trung bình | Giữ được ngữ cảnh không? |
 |-----------|----------|-------------|------------|-------------------|
-| | FixedSizeChunker (`fixed_size`) | | | |
-| | SentenceChunker (`by_sentences`) | | | |
-| | RecursiveChunker (`recursive`) | | | |
+| `course-registration-03` | Fixed size | 6 | 355,8 | Có thể cắt giữa câu/mốc thời gian |
+| `course-registration-03` | Sentence | 10 | 211,6 | Giữ nguyên câu, evidence dễ bị phân tán |
+| `course-registration-03` | Recursive | 7 | 303,3 | Ưu tiên đoạn/dòng, khá mạch lạc |
+| `course-registration-04` | Fixed size | 5 | 395,4 | Chunk đều nhưng ranh giới cơ học |
+| `course-registration-04` | Sentence | 10 | 196,1 | Câu trọn vẹn, chunk ngắn |
+| `course-registration-04` | Recursive | 5 | 393,8 | Giữ tốt các mục quy định |
+| `course-registration-07` | Fixed size | 9 | 362,4 | Có nguy cơ tách điều kiện và ngoại lệ |
+| `course-registration-07` | Sentence | 16 | 201,9 | Nhiều chunk, tăng cạnh tranh trong top-k |
+| `course-registration-07` | Recursive | 9 | 360,7 | Cân bằng kích thước và ranh giới tự nhiên |
 
 ### Chiến lược của từng thành viên
 
-> Mỗi thành viên điền một khối dưới đây (copy thêm nếu nhóm có nhiều hơn 3 người).
+- **Nguyễn Hữu Khánh Tùng — `FixedSizeChunker(500, overlap=50)`:** baseline dễ tái lập; overlap cho thông tin ở biên thêm một cơ hội xuất hiện nhưng tạo dữ liệu trùng lặp.
+- **Nguyễn Tuấn Vũ — `RecursiveChunker(chunk_size=400)`:** ưu tiên đoạn, dòng, câu rồi từ; phù hợp văn bản quy định có đoạn ngắn nhưng không bảo đảm giữ heading ở mọi mảnh con.
+- **Nguyễn Văn Phong — `SentenceChunker(max_sentences_per_chunk=3)`:** không cắt giữa câu, phù hợp câu quy định trọn ý; đổi lại kích thước không đều và số chunk tăng.
+- **Nguyễn Phúc Hưng — heading 400 + recursive fallback:** tách theo heading Markdown; section dài mới recursive và gắn heading lại vào mảnh con. Đây là strategy khai thác cấu trúc domain của tài liệu quy định.
 
-**Thành viên 1 — [Tên]**
-- **Loại chiến lược:** [FixedSize / Sentence / Recursive / custom]
-- **Mô tả & lý do chọn cho chủ đề này:** *(2-3 câu)*
-- **Code snippet (nếu custom):**
+Logic chính của heading chunker:
+
 ```python
-# Dán mã nguồn (implementation) vào đây
+sections = re.split(r"(?m)(?=^#{1,6}\\s+)", text)
+for section in sections:
+    if len(section) <= 400:
+        chunks.append(section)
+    else:
+        # recursive split phần thân và gắn lại heading cho từng mảnh
+        chunks.extend(split_long_section_with_heading(section))
 ```
-
-**Thành viên 2 — [Tên]**
-- **Loại chiến lược:**
-- **Mô tả & lý do chọn:**
-- **Code snippet (nếu custom):**
-
-**Thành viên 3 — [Tên]**
-- **Loại chiến lược:**
-- **Mô tả & lý do chọn:**
-- **Code snippet (nếu custom):**
 
 ### So Sánh Giữa Các Thành Viên
 
 | Thành viên | Chiến lược (Strategy) | Điểm truy xuất (/10) | Điểm mạnh | Điểm yếu |
 |-----------|----------|----------------------|-----------|----------|
-| | | | | |
-| | | | | |
-| | | | | |
+| Nguyễn Hữu Khánh Tùng | Fixed 500, overlap 50 — 33 chunks | 5 | Q4 và Q5 đủ evidence; ít chunk | Q1/Q3 sai section; có trùng lặp do overlap |
+| Nguyễn Tuấn Vũ | Recursive 400 — 43 chunks | 2 | Q4 giữ điều kiện và ngoại lệ cùng chunk | Mock embedding xếp sai section ở Q1/Q2/Q3/Q5 |
+| Nguyễn Văn Phong | Sentence 3 — 49 chunks | **6** | Tốt nhất ở Q1, Q5; câu không bị cắt | Evidence dài bị phân tán, Q3 thất bại |
+| Nguyễn Phúc Hưng | Heading 400 + recursive — 52 chunks | 4 | Q1 đủ evidence, giữ tiêu đề | Nhiều chunk cùng tài liệu cạnh tranh top-k; Q4 sai section |
 
 **Chiến lược nào tốt nhất cho chủ đề này? Tại sao?**
-> *Viết 2-3 câu — đây là phần được đánh giá cao nhất (khả năng suy nghĩ & giải thích):*
+> Trong lượt chuẩn hóa bằng mock embedding, SentenceChunker của Phong đạt cao nhất (6/10) vì các câu chứa mốc thời gian và tên biểu mẫu được giữ nguyên. Tuy nhiên không có strategy thắng mọi query: Fixed size tốt ở ngoại lệ/học phí, Heading tốt ở lịch có cấu trúc mục, còn Recursive cho chunk cân bằng. Khi triển khai thật, nhóm ưu tiên heading + recursive fallback cho văn bản quy định và dùng multilingual embedding; kết quả mock chỉ là bằng chứng kỹ thuật, không phải kết luận ngữ nghĩa cuối cùng.
 
 ---
 
@@ -114,11 +118,13 @@ Chạy `ChunkingStrategyComparator().compare()` trên 2-3 tài liệu:
 
 | # | Câu hỏi (Query) | Câu trả lời chuẩn (Gold Answer) | Chunk nào chứa thông tin? |
 |---|-------|-------------------------------|--------------------------|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
-| 5 | | | |
+| 1 | Ba đợt đăng ký lớp học kỳ 2026.1 diễn ra trong khoảng thời gian nào? | Chính thức 22/07–03/08/2026; điều chỉnh 03/08–15/08/2026; đăng ký thêm lớp đang mở 15/08–22/08/2026. | `course-registration-03`, phần “Các giai đoạn và mốc thời gian” |
+| 2 | Quy trình đăng ký học tập chương trình đại học gồm những giai đoạn nào? | Đăng ký học phần; đăng ký lớp chính thức; điều chỉnh đăng ký. | `course-registration-04` hoặc `07`, phần quy trình |
+| 3 | Theo quy chế, sinh viên bình thường và sinh viên bị cảnh báo học tập được đăng ký bao nhiêu tín chỉ trong học kỳ chính? | Bình thường 12–24; cảnh báo: chương trình chuẩn 8–14, ELITECH/hợp tác quốc tế 8–18 tín chỉ. | `course-registration-07`, phần khối lượng tín chỉ |
+| 4 | Sinh viên rút học phần trong 7 tuần đầu phải đóng bao nhiêu học phí và có ngoại lệ nào? | Đóng 50%; ngoại lệ đề nghị trong tuần đầu học kỳ hai, và quy định không áp dụng cho học kỳ hè. | `course-registration-07`, phần rút học phần |
+| 5 | Sinh viên SoICT cần làm gì khi muốn đăng ký vào lớp đã đầy hoặc muốn hủy đăng ký lớp? | Dùng đúng đơn đăng ký lớp đầy/đơn hủy lớp và gửi đơn vị quản lý học phần để xét duyệt. | `course-registration-08`, phần biểu mẫu |
+
+Gold answer được cố định trước lượt so sánh chuẩn hóa. Q1 bắt buộc filter `{"audience":"student","semester":"2026.1"}`; Q2–Q4 lọc policy; Q5 lọc `student + add-drop`.
 
 ### Tổng hợp chất lượng truy xuất của nhóm
 
@@ -126,27 +132,52 @@ Chạy `ChunkingStrategyComparator().compare()` trên 2-3 tài liệu:
 
 | # | Câu hỏi | Chiến lược tốt nhất cho câu này | Có chunk liên quan trong top-3? | Ghi chú |
 |---|---------|-------------------------------|-------------------------------|---------|
-| 1 | | | | |
-| 2 | | | | |
-| 3 | | | | |
-| 4 | | | | |
-| 5 | | | | |
+| 1 | Lịch 2026.1 | Sentence / Heading | Có, đủ 4/4 evidence | Filter loại lịch kỳ khác; hai strategy đạt 2/2 |
+| 2 | Ba giai đoạn | Fixed / Sentence / Heading | Có một phần | Tối đa 2/3 evidence; các giai đoạn bị phân tán |
+| 3 | Giới hạn tín chỉ | Chưa có strategy đạt | Không | Đúng tài liệu có thể xuất hiện nhưng top-3 sai section; 0/3 evidence |
+| 4 | Rút học phần | Fixed / Recursive | Có, đủ 4/4 evidence | Điều kiện 7 tuần, 50% và ngoại lệ nằm cùng ngữ cảnh |
+| 5 | Biểu mẫu SoICT | Fixed / Sentence | Có, đủ 3/3 evidence | Filter add-drop loại toàn bộ tài liệu policy/lịch |
 
 **Lọc bằng metadata có giúp ích không? Ở câu hỏi nào?**
-> *Viết 2-3 câu:*
+> Có. Q1 cho thấy rõ nhất: với Heading, không filter có 0/4 evidence nhưng filter `semester="2026.1"` đưa đúng ba chunk của `course-registration-03` vào top-3 và đạt 4/4. Q5 với Sentence tăng từ 0/3 lên 3/3 nhờ `registration_phase="add-drop"`. Đánh đổi là filter phụ thuộc metadata đúng kiểu, vì vậy nhóm đã đặt `semester` trong dấu nháy để PyYAML luôn đọc là string.
+
+### A/B filter và failure analysis
+
+**A/B điển hình — Q1, HeadingChunker:**
+
+- Không filter: 0/4 evidence; các lịch/chính sách khác cạnh tranh thứ hạng.
+- Có filter: `course-registration-03#1`, `#2`, `#0`; đủ 4/4 mốc ngày.
+- Kết luận: filter tăng precision bằng cách thu hẹp đúng học kỳ trước khi rank.
+
+**Failure case — Q3:** cả bốn strategy đều 0/3 evidence dù một số top-3 thuộc đúng `course-registration-04/07`. Query đúng chủ đề nhưng mock embedding xếp các section chung về đăng ký/mở lớp cao hơn section chứa 12–24, 8–14 và 8–18 tín chỉ. Nguyên nhân không phải thiếu tài liệu mà là sai chunk trong cùng tài liệu. Đề xuất: multilingual embedding, heading metadata (`section_title`), hybrid keyword + vector và kiểm thử `top_k=5`.
+
+**Failure case phụ — Q4 của Heading:** top-3 đều là policy nhưng không có evidence; heading giúp coherence nhưng không tự giải quyết ranking. Đây là minh chứng score cao hoặc đúng `doc_id` chưa phải bằng chứng câu trả lời đúng.
 
 ---
 
 ## 4. Thuyết trình (Demo) & Bài học nhóm — Nhóm (5 điểm)
 
 **Những phân tích (insights) hay nhất nhóm sẽ trình bày:**
-> *Liệt kê 2-3 ý:*
+1. Metadata filter phải chạy trước ranking; Q1 và Q5 cho thấy evidence tăng rõ rệt sau lọc.
+2. Đánh giá phải ở mức chunk/evidence, không chỉ `doc_id`: Q3 và Q4 Heading đều lấy đúng tài liệu nhưng sai section.
+3. Chunker phù hợp phụ thuộc cấu trúc câu hỏi: Sentence thắng tổng điểm mock, còn Heading giữ cấu trúc tốt cho lịch/mục quy định.
 
 **Bài học rút ra khi so sánh trong nhóm:**
-> *Viết 2-3 câu — cùng tài liệu nhưng chiến lược khác nhau dẫn tới khác biệt gì?*
+> Cùng corpus và query nhưng số chunk biến thiên từ 33 đến 52, làm thay đổi số ứng viên và khả năng evidence lọt top-3. Chunk lớn giữ được điều kiện/ngoại lệ nhưng có thể loãng chủ đề; chunk nhỏ giữ câu hoặc heading tốt hơn nhưng evidence dài dễ bị chia ra nhiều mảnh cạnh tranh nhau.
 
 **Nếu làm lại, nhóm sẽ thay đổi gì trong chiến lược dữ liệu (data strategy)?**
-> *Viết 2-3 câu:*
+> Nhóm sẽ chuẩn hóa toàn bộ metadata thành string có schema validation, thêm `section_title` lên mỗi chunk và loại nội dung trùng giữa hai bản trích cùng quy chế. Sau checkpoint code, nhóm sẽ dùng một multilingual embedding duy nhất cho cả bốn người, cache model trước giờ lab và chạy benchmark bằng một manifest query chung để tránh lệch cấu hình.
+
+### Kịch bản demo 6–8 phút
+
+| Thời lượng | Người trình bày | Nội dung |
+|---|---|---|
+| 1 phút | Nguyễn Tuấn Vũ | Phạm vi corpus, provenance và metadata schema |
+| 2 phút | Tùng, Phong, Hưng, Vũ | Mỗi người giới thiệu ngắn strategy và số chunk |
+| 3 phút | Nguyễn Tuấn Vũ | Bảng so sánh, A/B Q1/Q5 và failure Q3 |
+| 1–2 phút | Nguyễn Văn Phong | Chạy `python scripts/compare_team_strategies.py` hoặc trình bày output đã chuẩn bị |
+
+Khi hỏi đáp, nhóm giải thích được filter tăng precision nhưng có thể giảm recall, heading strategy dễ tái dùng cho domain có cấu trúc mục, và mock embedding chỉ kiểm tra pipeline chứ không đo đầy đủ ngữ nghĩa tiếng Việt.
 
 ---
 
@@ -154,8 +185,10 @@ Chạy `ChunkingStrategyComparator().compare()` trên 2-3 tài liệu:
 
 | Tiêu chí | Điểm tự đánh giá |
 |----------|-------------------|
-| Lựa chọn tài liệu (Document Set Quality) | / 10 |
-| Thiết kế chiến lược (Strategy Design) | / 15 |
-| Chất lượng truy xuất (Retrieval Quality) | / 10 |
-| Thuyết trình (Demo) | / 5 |
-| **Tổng phần nhóm** | **/ 40** |
+| Lựa chọn tài liệu (Document Set Quality) | 10 / 10 |
+| Thiết kế chiến lược (Strategy Design) | 15 / 15 |
+| Chất lượng truy xuất (Retrieval Quality) | 6 / 10 |
+| Thuyết trình (Demo) | 4 / 5 |
+| **Tổng phần nhóm** | **35 / 40** |
+
+Điểm tự đánh giá retrieval lấy theo strategy tốt nhất trong lượt chuẩn hóa và được giữ ở mức 6/10 thay vì suy diễn từ `doc_id`. Điểm demo chỉ tự đánh giá 4/5 cho đến khi nhóm hoàn thành phần trình bày trực tiếp.
