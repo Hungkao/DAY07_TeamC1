@@ -153,13 +153,13 @@ Chạy **5 câu hỏi đánh giá của nhóm** trên mã nguồn cá nhân củ
 
 | # | Câu hỏi (Query) | Top-1 Chunk truy xuất được (tóm tắt) | Điểm Score | Có liên quan không? (Relevant) | Câu trả lời của Agent (tóm tắt) |
 |---|-------|--------------------------------|-------|-----------|------------------------|
-| 1 | Ba đợt đăng ký lớp học kỳ 2026.1 diễn ra trong khoảng thời gian nào? | `hust-course-registration-info`, chunk 2: lịch đăng ký học phần kỳ 2026.1, không chứa các mốc đăng ký lớp trong gold answer. | 0.7343 | Không | Demo agent chỉ trả lại context của tài liệu lịch khác, không trả lời đủ ba mốc thời gian. |
+| 1 | Ba đợt đăng ký lớp học kỳ 2026.1 diễn ra trong khoảng thời gian nào? | *Có filter:* `course-registration-03`, chunk 2, chứa đủ 4 mốc thời gian chính thức/điều chỉnh/thêm. | 0.6332 | Có | Demo agent của lượt chạy unfiltered vẫn trả context lịch khác; cần đưa filtered context vào LLM để trả lời grounded. |
 | 2 | Quy trình đăng ký học tập chương trình đại học gồm những giai đoạn nào? | `course-registration-04`, chunk 0: mở đầu quy định đăng ký học tập và phần ba giai đoạn. | 0.7264 | Có, một phần | Demo agent grounded theo hai tài liệu quy chế, nhưng không tự tổng hợp trọn vẹn ba giai đoạn. |
-| 3 | Trong kỳ 2026.1, sinh viên bình thường và sinh viên bị cảnh báo học tập được đăng ký bao nhiêu tín chỉ? | `hust-course-registration-info`, chunk 3: nêu 12–24 TC và tối đa 14 TC khi cảnh báo. | 0.8198 | Có, một phần | Demo agent nêu một phần giới hạn tín chỉ; thiếu các mức Elitech và một số điều kiện trong gold answer. |
-| 4 | Sinh viên rút học phần trong 7 tuần đầu phải đóng bao nhiêu học phí và có ngoại lệ nào? | `course-registration-03`, chunk 6: nhắc rút trong 7 tuần đầu và học phí theo quy định, chưa có mức 50%/ngoại lệ. | 0.8224 | Không ở top-1 | Trong top-3 có `course-registration-07` chứa 50% học phí và ngoại lệ; demo agent chỉ trả context, chưa tổng hợp hoàn chỉnh. |
-| 5 | Sinh viên SoICT cần làm gì khi muốn đăng ký vào lớp đã đầy hoặc muốn hủy đăng ký lớp? | `course-registration-03`, chunk 5: xử lý trạng thái hết chỗ, không có biểu mẫu SoICT. | 0.7588 | Không | Demo agent lấy nhiễu từ tài liệu kế hoạch; khi dùng filter `add-drop`, `course-registration-08` mới lên top-1. |
+| 3 | Trong kỳ 2026.1, sinh viên bình thường và sinh viên bị cảnh báo học tập được đăng ký bao nhiêu tín chỉ? | *Có filter:* `course-registration-03`, chunk 4, nêu mức 12–24 TC và 12–28 TC cho Elitech. | 0.7521 | Có, một phần | Demo agent ở lượt unfiltered nêu một phần giới hạn tín chỉ; filtered retrieval đã đưa đúng tài liệu lên top-1. |
+| 4 | Sinh viên rút học phần trong 7 tuần đầu phải đóng bao nhiêu học phí và có ngoại lệ nào? | *Có filter:* `course-registration-04`, chunk 6, nói về rút trong 7 tuần đầu; `course-registration-07`, chunk 7 ở top-3 có mức 50% và ngoại lệ. | 0.7674 | Có, một phần | Demo agent chỉ trả context; chunk evidence vẫn cần được tổng hợp để trả lời đầy đủ. |
+| 5 | Sinh viên SoICT cần làm gì khi muốn đăng ký vào lớp đã đầy hoặc muốn hủy đăng ký lớp? | *Có filter:* `course-registration-08`, chunk 5, chứa “Đơn xin đăng ký vào lớp đã đầy”. | 0.7262 | Có, một phần | Filter `registration_phase=add-drop` loại nhiễu và đưa tài liệu SoICT lên top-1. |
 
-**Bao nhiêu câu hỏi trả về chunk có liên quan trong top-3?** 3 / 5 (Q2, Q3, Q4 ở truy vấn không filter). Với filter, Q4 và Q5 được cải thiện, nhưng Q1/Q3 rỗng do `semester` bị parse thành số thực thay vì chuỗi.
+**Bao nhiêu câu hỏi trả về chunk có liên quan trong top-3?** 5 / 5 khi áp dụng metadata filter chính thức. Sau khi chuẩn hóa `semester` thành chuỗi YAML, Q1 và Q3 không còn trả rỗng; điểm retrieval đề xuất là 6 / 10 vì Q2–Q5 vẫn thiếu một phần bằng chứng hoặc câu trả lời agent chưa được tổng hợp hoàn chỉnh.
 
 **Điều hay nhất tôi học được từ thành viên khác / nhóm khác (qua demo):**
 > Qua so sánh các strategy trong nhóm, tôi nhận ra chunk theo câu giữ ngữ pháp tốt nhưng có thể làm bằng chứng dạng liệt kê hoặc ngoại lệ bị tách sang chunk khác. Các strategy recursive và heading/section đáng thử cho văn bản quy định vì chúng có thể giữ tiêu đề, điều kiện và ngoại lệ trong cùng một đơn vị ngữ nghĩa. Tôi cũng học được rằng metadata filter chỉ đáng tin khi chuẩn hóa cả giá trị lẫn kiểu dữ liệu của metadata.
@@ -174,5 +174,5 @@ Chạy **5 câu hỏi đánh giá của nhóm** trên mã nguồn cá nhân củ
 | Hướng tiếp cận của tôi (My Approach) | 10 / 10 |
 | Hoàn thiện code (Core Implementation — tests) | 30 / 30 |
 | Dự đoán độ tương tự (Similarity Predictions) | 5 / 5 |
-| Kết quả truy xuất của tôi (Competition Results) | 3 / 10 |
-| **Tổng phần cá nhân** | **53 / 60** |
+| Kết quả truy xuất của tôi (Competition Results) | 6 / 10 |
+| **Tổng phần cá nhân** | **56 / 60** |
