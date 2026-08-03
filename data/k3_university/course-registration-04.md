@@ -8,7 +8,7 @@ language: vi
 source_url: https://ctt.hust.edu.vn/Upload/Nguy%E1%BB%85n%20Qu%E1%BB%91c%20%C4%90%E1%BA%A1t/files/DTDH_QDQC/Hoctap/QCDT_2025_5445_QD-DHBK.pdf
 retrieved_at: 2026-08-03
 document_version: "5445/QĐ-ĐHBK"
-semester: 2026.1
+semester: all
 registration_phase: policy
 ---
 
