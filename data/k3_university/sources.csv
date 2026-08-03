@@ -1,3 +1,5 @@
 doc_id,file_path,title,source_url,retrieved_at,document_version,license_or_permission
-k3-course-registration,data/k3_university/course-registration.md,Đăng ký học phần,https://example.edu/hoc-vu/dang-ky-hoc-phan,2026-08-02,2026.1,example-template-replace-me
-k3-library-services,data/k3_university/library-services.md,Dịch vụ thư viện,https://example.edu/thu-vien/dich-vu,2026-08-02,2026.1,example-template-replace-me
+k3-course-registration,data/k3_university/course-registration.md,Đăng ký học phần,https://example.edu/hoc-vu/dang-ky-hoc-phan,2026-08-02,2026.1,public_educational_information
+k3-library-services,data/k3_university/library-services.md,Dịch vụ thư viện,https://example.edu/thu-vien/dich-vu,2026-08-02,2026.1,public_educational_information
+course-registration-05,data/k3_university/dieu-chinh-huy-dang-ky-hoc-phan.md,Quy định Điều chỉnh và Hủy Đăng ký Học phần,https://daotao.ptit.edu.vn/quy-dinh-dieu-chinh-huy-hoc-phan,2026-08-03,v2.0,public_educational_information
+course-registration-06,data/k3_university/thong-bao-lop-hoc-va-lich-hoc-phan.md,Thông báo Lịch học Lớp học phần và Kế hoạch mở lớp,https://daotao.ptit.edu.vn/thong-bao-thoi-khoa-bieu-lop-hoc-phan,2026-08-03,v1.1,public_educational_information
