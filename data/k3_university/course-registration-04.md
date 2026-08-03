@@ -1,7 +1,7 @@
 ---
 doc_id: course-registration-04
 title: Quy chế đào tạo đại học - Quy định về đăng ký học tập
-audience: student
+audience: all
 department: academic-affairs
 category: course-registration
 language: vi
