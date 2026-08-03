@@ -30,32 +30,32 @@ Strategy tách tại ranh giới câu và gộp tối đa ba câu trong mỗi ch
 
 | Query | Top-3 không filter | Top-3 có filter | Điểm retrieval đề xuất | Nhận xét |
 |---|---|---|---:|---|
-| Q1 — Lịch đăng ký kỳ 2026.1 | Top-3 là `hust-course-registration-info`/`schedule`, chưa có bằng chứng ngày của `course-registration-03`. | Không có kết quả. | 0/2 | Filter `semester="2026.1"` bị lệch kiểu dữ liệu metadata. |
+| Q1 — Lịch đăng ký kỳ 2026.1 | Top-3 là `hust-course-registration-info`/`schedule`, chưa có bằng chứng ngày của `course-registration-03`. | `course-registration-03` chunk 2 lên top-1 và chứa đủ 4 mốc thời gian. | 2/2 | Sau khi chuẩn hóa `semester` thành chuỗi, filter loại đúng nhiễu theo học kỳ. |
 | Q2 — Ba giai đoạn đăng ký | Có `course-registration-04` và `course-registration-07`; chunk 07 chứa “Đăng ký học phần”. | Không đổi thứ hạng; chỉ giữ 2 tài liệu policy. | 1/2 | Filter đúng phạm vi quy chế, nhưng các bằng chứng bị phân tán qua chunk. |
-| Q3 — Giới hạn tín chỉ kỳ 2026.1 | Có bằng chứng một phần từ `hust-course-registration-info`, `course-registration-07` và 04. | Không có kết quả. | 0/2 | Cùng lỗi kiểu dữ liệu `semester` như Q1. |
+| Q3 — Giới hạn tín chỉ kỳ 2026.1 | Có bằng chứng một phần từ `hust-course-registration-info`, `course-registration-07` và 04. | `course-registration-03` chunk 4 lên top-1, chứa các mức 12, 24 và 28 TC. | 1/2 | Filter nay hoạt động, nhưng các mức cảnh báo 08, 14, 18 chưa nằm trong chunk top-3. |
 | Q4 — Rút học phần và học phí | Top-1 là nhiễu `course-registration-03`; `course-registration-07` đứng thứ 3 và chứa 3 bằng chứng. | `course-registration-07` chunk 7 lên thứ 2. | 1/2 | Filter loại nhiễu lịch/kế hoạch, nhưng bằng chứng “không áp dụng kỳ hè” chưa nằm trong chunk top-3. |
 | Q5 — Lớp đầy và hủy đăng ký | Top-3 đều là tài liệu lịch/kế hoạch, chưa có `course-registration-08`. | `course-registration-08` chunk 5 lên top-1. | 1/2 | Filter `registration_phase=add-drop` loại nhiễu hiệu quả; chunk top-1 chứa “Đơn xin đăng ký vào lớp đã đầy”. |
 
-**Tổng điểm retrieval đề xuất:** **3/10** (chưa phải điểm agent chính thức).
+**Tổng điểm retrieval đề xuất:** **6/10**
 
 ## Nhận xét về metadata filter
 
-Filter trước khi rank có lợi rõ ở Q4 và Q5: tài liệu không đúng giai đoạn/đối tượng bị loại trước khi tính similarity, nên chunk đúng tăng hạng. Q1 và Q3 lại cho tập rỗng vì parser front matter đọc `semester: 2026.1` thành kiểu `float`, còn benchmark filter bằng chuỗi `"2026.1"`.
+Filter trước khi rank có lợi rõ ở Q1, Q3, Q4 và Q5: tài liệu không đúng học kỳ, giai đoạn hoặc đối tượng bị loại trước khi tính similarity, nên chunk đúng tăng hạng. Sau khi chuẩn hóa kiểu dữ liệu `semester`, Q1 trả đúng chunk có đầy đủ bằng chứng ở top-1 và Q3 trả đúng tài liệu ở top-1.
 
 Kiểm tra trực tiếp bằng `parse_front_matter()` cho thấy:
 
 ```text
-course-registration-03.md  semester=2026.1  type=float
-hust-course-registration-schedule.md  semester=2025.2  type=float
+course-registration-03.md  semester='2026.1'  type=str
+hust-course-registration-schedule.md  semester='2025.2'  type=str
 ```
 
-Trước CP6, nhóm nên thống nhất lưu học kỳ dưới dạng chuỗi YAML:
+Metadata học kỳ đã được chuẩn hóa dưới dạng chuỗi YAML:
 
 ```yaml
 semester: "2026.1"
 ```
 
-Sau khi sửa schema chung, mọi thành viên phải chạy lại cả 5 query với cùng corpus và local embedder để giữ phép so sánh công bằng.
+Các thành viên khác cần chạy lại cả 5 query với cùng corpus và local embedder để giữ phép so sánh công bằng.
 
 ## Tái lập kết quả
 

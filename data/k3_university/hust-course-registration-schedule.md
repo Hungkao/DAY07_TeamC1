@@ -8,7 +8,7 @@ language: vi
 source_url: https://ctt.hust.edu.vn/DisplayWeb/DisplayKehoach?kehoach=27232
 retrieved_at: 2026-08-03
 document_version: "2025-12-25"
-semester: 2025.2
+semester: "2025.2"
 registration_phase: registration
 ---
 
