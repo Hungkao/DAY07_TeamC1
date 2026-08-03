@@ -1,7 +1,7 @@
 ---
 doc_id: course-registration-07
 title: Quy chế đào tạo 2025 - quy định đăng ký học tập chương trình đại học
-audience: student
+audience: all
 department: academic-affairs
 category: course-registration
 language: vi
