@@ -1,3 +1,5 @@
 doc_id,file_path,title,source_url,retrieved_at,document_version,license_or_permission
 k3-course-registration,data/k3_university/course-registration.md,Đăng ký học phần,https://example.edu/hoc-vu/dang-ky-hoc-phan,2026-08-02,2026.1,example-template-replace-me
 k3-library-services,data/k3_university/library-services.md,Dịch vụ thư viện,https://example.edu/thu-vien/dich-vu,2026-08-02,2026.1,example-template-replace-me
+course-registration-03,data/k3_university/hust-huong-dan-dang-ky-lop-20261.md,Kế hoạch mở đăng ký lớp kỳ 1 năm học 2026-2027 (kỳ 2026.1),https://ctt.hust.edu.vn/DisplayWeb/DisplayKehoach?kehoach=29240,2026-08-03,2026.1,public-page
+course-registration-04,data/k3_university/hust-quy-che-dang-ky-hoc-tap-2025.md,Quy chế đào tạo đại học - Quy định về đăng ký học tập,https://ctt.hust.edu.vn/Upload/Nguy%E1%BB%85n%20Qu%E1%BB%91c%20%C4%90%E1%BA%A1t/files/DTDH_QDQC/Hoctap/QCDT_2025_5445_QD-DHBK.pdf,2026-08-03,5445/QĐ-ĐHBK,public-page
