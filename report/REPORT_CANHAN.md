@@ -56,15 +56,15 @@ Giải thích cách tiếp cận của bạn khi lập trình (implement) các p
 ### Lớp EmbeddingStore
 
 **`add_documents` + `search`** — hướng tiếp cận:
-> *Viết 2-3 câu: lưu trữ thế nào? Tính độ tương tự ra sao?*
+> Mỗi `Document` được chuẩn hóa thành record gồm ID duy nhất, content, bản sao metadata và embedding; `metadata.doc_id` được bổ sung khi đầu vào chưa có. Khi tìm kiếm, query chỉ được embedding một lần, sau đó tính dot product với từng record, sắp xếp score giảm dần và cắt `top_k`. Các embedding được chuẩn hóa nên dot product tương đương cosine trong pipeline của lab.
 
 **`search_with_filter` + `delete_document`** — hướng tiếp cận:
-> *Viết 2-3 câu: lọc (filter) trước hay sau? Xóa bằng cách nào?*
+> `search_with_filter` lọc record trước khi xếp hạng và chỉ giữ record khớp mọi cặp key/value; nếu filter là `None` thì gọi lại `search` để hai đường xử lý cho cùng kết quả. `delete_document` tạo lại danh sách record sau khi loại toàn bộ chunk có `metadata.doc_id` tương ứng và trả `True` khi kích thước store thực sự giảm.
 
 ### Tác tử KnowledgeBaseAgent
 
 **`answer`** — hướng tiếp cận:
-> *Viết 2-3 câu: cấu trúc prompt? Cách đưa ngữ cảnh (inject context) vào thế nào?*
+> Agent gọi `store.search(question, top_k)`, đánh số từng chunk `[1]`, `[2]` và kèm `source_url`, `source` hoặc `doc_id` để truy vết. Prompt yêu cầu LLM chỉ trả lời từ Context, nói rõ khi dữ liệu không đủ và dẫn số nguồn khi có thể; nếu store không có kết quả, agent trả thông báo trực tiếp mà không gọi LLM.
 
 ---
 
@@ -75,10 +75,17 @@ Vượt qua bộ kiểm thử là điều kiện tính điểm phần này.
 ### Kết Quả Kiểm Thử (Test Results)
 
 ```
-# Dán kết quả (output) của: pytest tests/ -v
+python -m unittest tests.test_solution -q
+
+----------------------------------------------------------------------
+Ran 42 tests in 0.002s
+
+OK
 ```
 
-**Số lượng bài test vượt qua (pass):** __ / 42
+**Số lượng bài test vượt qua (pass):** 42 / 42
+
+> Kết quả trên được chạy bằng `unittest` với interpreter hiện có. Trước khi nộp, sẽ chạy lại `python -m pytest tests -v` trong môi trường Python 3.11 và thay khối output bằng kết quả pytest chính thức.
 
 ---
 
