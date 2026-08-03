@@ -91,7 +91,7 @@ class RecursiveChunker:
             current_length += piece_length
         if current:
             chunks.append("".join(current))
-        return chunks
+        return [chunk.strip() for chunk in chunks if chunk.strip()]
 
     def _split(self, current_text: str, remaining_separators: list[str]) -> list[str]:
         if len(current_text) <= self.chunk_size:
@@ -134,16 +134,11 @@ def compute_similarity(vec_a: list[float], vec_b: list[float]) -> float:
 
     Returns 0.0 if either vector has zero magnitude.
     """
-    dot_product = 0.0
-    magnitude_a_squared = 0.0
-    magnitude_b_squared = 0.0
-    for a, b in zip(vec_a, vec_b):
-        dot_product += a * b
-        magnitude_a_squared += a * a
-        magnitude_b_squared += b * b
-
-    denominator = (magnitude_a_squared * magnitude_b_squared) ** 0.5
-    return dot_product / denominator if denominator else 0.0
+    norm_a = math.sqrt(_dot(vec_a, vec_a))
+    norm_b = math.sqrt(_dot(vec_b, vec_b))
+    if norm_a == 0 or norm_b == 0:
+        return 0.0
+    return _dot(vec_a, vec_b) / (norm_a * norm_b)
 
 
 class ChunkingStrategyComparator:
