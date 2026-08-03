@@ -106,22 +106,22 @@ tests/test_solution.py .......................................... [100%]
 
 ## 5. Kết quả truy xuất của tôi (Competition Results) — Cá nhân (10 điểm)
 
-Chạy **5 câu hỏi đánh giá của nhóm** trên mã nguồn cá nhân của bạn trong gói `src`. **5 câu hỏi này phải trùng với các thành viên cùng nhóm** (xem `REPORT_NHOM.md`).
+Chạy **5 câu hỏi đánh giá của nhóm** trên mã nguồn cá nhân trong gói `src`; cấu hình và kết quả chính thức như sau.
 
-| # | Câu hỏi (Query) | Top-1 Chunk truy xuất được (tóm tắt) | Điểm Score | Có liên quan không? (Relevant) | Câu trả lời của Agent (tóm tắt) |
-|---|-------|--------------------------------|-------|-----------|------------------------|
-| 1 | | | | | |
-| 2 | | | | | |
-| 3 | | | | | |
-| 4 | | | | | |
-| 5 | | | | | |
+- Strategy: `RecursiveChunker(chunk_size=400)`; `top_k=3`.
+- Corpus chung: 6 tài liệu HUST, tạo thành 48 chunk.
+- Backend: `MockEmbedder` deterministic. Việc cài `sentence-transformers`/PyTorch không hoàn tất trong giới hạn thời gian trên máy, vì vậy kết quả này dùng để kiểm chứng luồng kỹ thuật; mock không đại diện tốt cho ngữ nghĩa tiếng Việt.
+- Benchmark đầy đủ, top-3 và A/B filter: `report/BENCHMARK_NGUYENTUANVU.md`.
 
-**Bao nhiêu câu hỏi trả về chunk có liên quan trong top-3?** __ / 5
+| # | Câu hỏi (rút gọn) | Top-1 sau filter | Score | Đánh giá top-3 | Câu trả lời agent demo (tóm tắt) |
+|---|---|---|---:|---|---|
+| 1 | Ba đợt đăng ký lớp kỳ 2026.1 | `course-registration-03`, chunk 3 | 0.1337 | Đủ 4/4 evidence | Nêu các mốc đăng ký chính thức, điều chỉnh và đăng ký thêm lớp. |
+| 2 | Các giai đoạn đăng ký học tập | `course-registration-07`, chunk 8 | 0.2887 | Chỉ 1/3 evidence, thiếu ngữ cảnh | Câu trích xuất lệch sang giới hạn tín chỉ và lớp thành phần. |
+| 3 | Giới hạn tín chỉ theo quy chế | `course-registration-04`, chunk 0 | 0.2861 | 0/3 evidence | Context không chứa đủ các mức tín chỉ cần trả lời. |
+| 4 | Rút học phần trong 7 tuần đầu | `course-registration-07`, chunk 7 | 0.2370 | Đủ 4/4 evidence | Trả đúng mức 50% học phí và ngoại lệ tuần đầu học kỳ hai. |
+| 5 | SoICT: lớp đầy hoặc hủy lớp | `course-registration-08`, chunk 4 | 0.1579 | 0/3 evidence | Truy xuất đúng tài liệu nhưng sai section chứa biểu mẫu. |
 
-**Điều hay nhất tôi học được từ thành viên khác / nhóm khác (qua demo):**
-> *Viết 2-3 câu:*
-
----
+**Tổng hợp:** 2/5 query có đủ toàn bộ evidence trong top-3; 3/5 query có ít nhất một evidence. Query 1 cho thấy metadata filter loại đúng tài liệu lịch kỳ 2025.2 và đưa lịch 2026.1 vào top-3. Failure rõ nhất là query 5: filter đưa đúng `doc_id` vào tập ứng viên nhưng mock embedding xếp sai chunk, chứng minh rằng đúng tài liệu chưa đồng nghĩa chunk chứa đáp án.
 
 ## Tự Đánh Giá (Phần Cá Nhân)
 
