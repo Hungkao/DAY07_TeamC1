@@ -1,3 +1,5 @@
 doc_id,file_path,title,source_url,retrieved_at,document_version,license_or_permission
 k3-course-registration,data/k3_university/course-registration.md,Đăng ký học phần,https://example.edu/hoc-vu/dang-ky-hoc-phan,2026-08-02,2026.1,example-template-replace-me
 k3-library-services,data/k3_university/library-services.md,Dịch vụ thư viện,https://example.edu/thu-vien/dich-vu,2026-08-02,2026.1,example-template-replace-me
+course-registration-07,data/k3_university/course-registration-07.md,Quy chế đào tạo 2025 - quy định đăng ký học tập chương trình đại học,https://ctt.hust.edu.vn/Upload/Nguy%E1%BB%85n%20Qu%E1%BB%91c%20%C4%90%E1%BA%A1t/files/DTDH_QDQC/Hoctap/QCDT_2025_5445_QD-DHBK.pdf,2026-08-03,2025-05,public-page
+course-registration-08,data/k3_university/course-registration-08.md,Hướng dẫn và biểu mẫu hỗ trợ đăng ký học tập cho sinh viên SoICT,https://soict.hust.edu.vn/bieu-mau-va-quy-dinh-danh-cho-sinh-vien.html,2026-08-03,2026-01-30,public-page
