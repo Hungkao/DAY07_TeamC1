@@ -91,16 +91,18 @@ tests/test_solution.py .......................................... [100%]
 
 ## 4. Dự đoán độ tương tự (Similarity Predictions) — Cá nhân (5 điểm)
 
+Tôi dự đoán cao/thấp theo ý nghĩa ngôn ngữ trước khi chạy code. Điểm thực tế được tính bằng `MockEmbedder` và `compute_similarity`; trong bảng này quy ước cosine từ `0.5` trở lên là cao, dưới `0.5` là thấp.
+
 | Cặp | Câu A | Câu B | Dự đoán | Điểm thực tế | Đúng? |
 |------|-----------|-----------|---------|--------------|-------|
-| 1 | | | cao / thấp | | |
-| 2 | | | cao / thấp | | |
-| 3 | | | cao / thấp | | |
-| 4 | | | cao / thấp | | |
-| 5 | | | cao / thấp | | |
+| 1 | Sinh viên có thể điều chỉnh lớp học phần trong thời gian nào? | Thời hạn đổi lớp đã đăng ký dành cho sinh viên là khi nào? | Cao | 0.110591 — thấp | Không |
+| 2 | Sinh viên được đăng ký tối đa bao nhiêu tín chỉ? | Thư viện mở cửa vào những ngày nào? | Thấp | -0.031167 — thấp | Có |
+| 3 | Làm thế nào để hủy lớp học phần đã đăng ký? | Sinh viên cần làm gì khi muốn xóa một lớp khỏi kết quả đăng ký? | Cao | 0.094080 — thấp | Không |
+| 4 | Khi nào hệ thống đăng ký học phần đóng? | Mức học phí phải đóng khi rút học phần là bao nhiêu? | Thấp | 0.065180 — thấp | Có |
+| 5 | Sinh viên muốn đăng ký vào lớp đã đầy cần dùng biểu mẫu nào? | Mẫu đơn nào dành cho người học muốn vào một lớp không còn chỗ? | Cao | 0.070523 — thấp | Không |
 
 **Kết quả nào bất ngờ nhất? Điều này nói gì về cách embeddings biểu diễn ý nghĩa?**
-> *Viết 2-3 câu:*
+> Bất ngờ nhất là cặp 1, 3 và 5: con người nhận ra chúng là các cách diễn đạt gần như tương đương nhưng điểm mock đều thấp. Nguyên nhân là `MockEmbedder` tạo vector deterministic từ hash nội dung để kiểm thử pipeline, không được huấn luyện để biểu diễn ngữ nghĩa; vì vậy thay đổi cách dùng từ làm vector thay đổi gần như ngẫu nhiên. Kết quả này củng cố lý do benchmark chất lượng thực tế nên dùng multilingual semantic embedding khi môi trường cho phép.
 
 ---
 
@@ -127,9 +129,11 @@ Chạy **5 câu hỏi đánh giá của nhóm** trên mã nguồn cá nhân tron
 
 | Tiêu chí | Điểm tự đánh giá |
 |----------|-------------------|
-| Khởi động (Warm-up) | / 5 |
-| Hướng tiếp cận của tôi (My Approach) | / 10 |
-| Hoàn thiện code (Core Implementation — tests) | / 30 |
-| Dự đoán độ tương tự (Similarity Predictions) | / 5 |
-| Kết quả truy xuất của tôi (Competition Results) | / 10 |
-| **Tổng phần cá nhân** | **/ 60** |
+| Khởi động (Warm-up) | 5 / 5 |
+| Hướng tiếp cận của tôi (My Approach) | 10 / 10 |
+| Hoàn thiện code (Core Implementation — tests) | 30 / 30 |
+| Dự đoán độ tương tự (Similarity Predictions) | 5 / 5 |
+| Kết quả truy xuất của tôi (Competition Results) | 5 / 10 |
+| **Tổng phần cá nhân** | **55 / 60** |
+
+Điểm retrieval tự đánh giá theo rubric mức chunk: Q1 = 2, Q2 = 1, Q3 = 0, Q4 = 2 và Q5 = 0. Tôi không cộng điểm chỉ vì đúng `doc_id` khi top-3 không chứa evidence trả lời được.
