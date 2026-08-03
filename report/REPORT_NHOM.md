@@ -24,8 +24,8 @@
 | # | Tên tài liệu | Nguồn (Source URL) | Ngày lấy / Phiên bản | Số ký tự | Metadata đã gán |
 |---|--------------|------------|--------------------|----------|-----------------|
 | 1 | Kế hoạch mở đăng ký lớp kỳ 2026.1 | [CTT HUST — kế hoạch 29240](https://ctt.hust.edu.vn/DisplayWeb/DisplayKehoach?kehoach=29240) | 2026-08-03 / 2026.1 | 2.135 | `student`, `2026.1`, `registration` |
-| 2 | Quy chế đào tạo — quy định đăng ký học tập | [CTT HUST — Quy chế đào tạo 2025](https://ctt.hust.edu.vn/Upload/Nguy%E1%BB%85n%20Qu%E1%BB%91c%20%C4%90%E1%BA%A1t/files/DTDH_QDQC/Hoctap/QCDT_2025_5445_QD-DHBK.pdf) | 2026-08-03 / 5445/QĐ-ĐHBK | 1.977 | `student`, `all`, `policy` |
-| 3 | Quy chế đào tạo 2025 — tín chỉ, rút học phần và mở lớp | [CTT HUST — Quy chế đào tạo 2025](https://ctt.hust.edu.vn/Upload/Nguy%E1%BB%85n%20Qu%E1%BB%91c%20%C4%90%E1%BA%A1t/files/DTDH_QDQC/Hoctap/QCDT_2025_5445_QD-DHBK.pdf) | 2026-08-03 / 2025-05 | 3.262 | `student`, `all`, `policy` |
+| 2 | Quy chế đào tạo — quy định đăng ký học tập | [CTT HUST — Quy chế đào tạo 2025](https://ctt.hust.edu.vn/Upload/Nguy%E1%BB%85n%20Qu%E1%BB%91c%20%C4%90%E1%BA%A1t/files/DTDH_QDQC/Hoctap/QCDT_2025_5445_QD-DHBK.pdf) | 2026-08-03 / 5445/QĐ-ĐHBK | 1.977 | `all`, `all`, `policy` |
+| 3 | Quy chế đào tạo 2025 — tín chỉ, rút học phần và mở lớp | [CTT HUST — Quy chế đào tạo 2025](https://ctt.hust.edu.vn/Upload/Nguy%E1%BB%85n%20Qu%E1%BB%91c%20%C4%90%E1%BA%A1t/files/DTDH_QDQC/Hoctap/QCDT_2025_5445_QD-DHBK.pdf) | 2026-08-03 / 2025-05 | 3.262 | `all`, `all`, `policy` |
 | 4 | Hướng dẫn và biểu mẫu hỗ trợ đăng ký SoICT | [SoICT HUST — biểu mẫu sinh viên](https://soict.hust.edu.vn/bieu-mau-va-quy-dinh-danh-cho-sinh-vien.html) | 2026-08-03 / 2026-01-30 | 2.731 | `student`, `all`, `add-drop` |
 | 5 | Đăng ký kế hoạch học tập kỳ hè 2025.3 và kỳ 2026.1 | [CTT HUST — kế hoạch 27235](https://ctt.hust.edu.vn/DisplayWeb/DisplayKehoach?kehoach=27235) | 2026-08-03 / `not-stated` | 1.850 | `student`, `2025.3-and-2026.1`, `registration` |
 | 6 | Kế hoạch mở đăng ký lớp kỳ 2025.2 | [CTT HUST — kế hoạch 27232](https://ctt.hust.edu.vn/DisplayWeb/DisplayKehoach?kehoach=27232) | 2026-08-03 / 2025-12-25 | 2.244 | `student`, `2025.2`, `registration` |
@@ -53,7 +53,7 @@ Tài liệu số 2 và 3 cùng xuất phát từ Quy chế đào tạo 2025 như
 | `semester` | string | `2025.2`, `2026.1`, `all` | Tránh trộn lịch đăng ký giữa các học kỳ. |
 | `registration_phase` | enum | `registration`, `add-drop`, `policy` | Lọc theo giai đoạn đăng ký hoặc loại nội dung quy định. |
 
-Do phạm vi nhóm chỉ gồm tài liệu dành cho sinh viên, cả sáu file hiện có `audience: student`. Bộ lọc `audience=student` vẫn đáp ứng contract K3 nhưng không làm thay đổi tập ứng viên; nhóm sẽ đánh giá giá trị metadata bằng A/B filter theo `semester` hoặc `registration_phase`, đồng thời ghi nhận hạn chế này trong phần phân tích retrieval.
+Corpus gồm bốn tài liệu hướng dẫn/kế hoạch có `audience: student` và hai văn bản quy chế có `audience: all`. Bộ lọc `audience` vì vậy có thể thu hẹp tập ứng viên theo đối tượng; nhóm cũng đánh giá giá trị metadata bằng A/B filter theo `semester` hoặc `registration_phase`.
 
 ---
 
